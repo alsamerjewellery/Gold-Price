@@ -5,27 +5,34 @@
   <title>مجوهرات السامر - أسعار الذهب</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    /* لضمان قياس أبعاد العناصر بشكل دقيق */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     body {
       background-color: #f4f1ed;
       font-family: 'Cairo', sans-serif;
       margin: 0;
-      padding: 12px;
+      padding: 12px 10px;
       color: #3b2f1d;
       position: relative;
+      font-size: 14px;
+      line-height: 1.4;
     }
     header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
     header h1 {
-      font-size: 1.9em; /* أقل من السابق */
+      font-size: 1.8em;
       margin: 0;
       color: #4a3522;
-      line-height: 1.2;
+      line-height: 1.1;
     }
     header h2 {
-      font-size: 1.1em;
-      margin-top: 3px;
+      font-size: 1em;
+      margin-top: 4px;
       color: #a6895a;
       font-weight: 400;
     }
@@ -33,36 +40,37 @@
       background-color: #fff;
       border: 2px solid #cbb69b;
       border-radius: 10px;
-      padding: 12px;
+      padding: 14px 16px;
       margin: 15px auto;
-      width: 100%;
       max-width: 600px;
+      width: 100%;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      box-sizing: border-box;
     }
     .row {
       display: flex;
       justify-content: space-between;
       border-bottom: 1px dashed #c8b7a1;
       padding: 8px 0;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
+      align-items: center;
     }
     .row:last-child {
       border-bottom: none;
     }
     .label {
       font-weight: 600;
-      flex: 1 1 45%; /* تسمح بالالتفاف والحد من المساحة */
-      min-width: 120px;
+      flex-basis: 48%;
+      min-width: 130px;
       word-break: break-word;
+      text-align: right;
     }
     .value {
       font-weight: 600;
-      direction: ltr;
       color: #000;
-      flex: 1 1 45%;
-      min-width: 80px;
+      direction: ltr;
+      flex-basis: 48%;
+      min-width: 110px;
       text-align: left;
       word-break: break-word;
     }
@@ -98,10 +106,10 @@
       background-color: #f0e8dc;
       border: 1px solid #cbb69b;
       border-radius: 8px;
-      padding: 10px;
+      padding: 10px 15px;
       margin: 15px auto 10px;
-      width: 100%;
       max-width: 600px;
+      width: 100%;
       text-align: center;
       color: #4a3522;
       font-size: 0.9em;
@@ -109,15 +117,17 @@
       font-weight: 600;
     }
 
+    /* التوافق مع الشاشات الصغيرة */
     @media (max-width: 480px) {
       body {
-        padding: 8px;
+        padding: 8px 6px;
+        font-size: 13px;
       }
       header h1 {
-        font-size: 1.6em;
+        font-size: 1.5em;
       }
       header h2 {
-        font-size: 1em;
+        font-size: 0.9em;
       }
       .timestamp {
         font-size: 0.7em;
@@ -127,19 +137,27 @@
       }
       .note-box {
         font-size: 0.85em;
-        padding: 8px;
+        padding: 8px 10px;
       }
       footer {
-        font-size: 0.8em;
+        font-size: 0.85em;
       }
       .label, .value {
         flex-basis: 100%;
         min-width: auto;
+      }
+      .label {
         text-align: right;
+        margin-bottom: 4px;
       }
       .value {
         direction: ltr;
         text-align: left;
+        margin-bottom: 10px;
+      }
+      .row {
+        padding: 6px 0;
+        gap: 8px;
       }
     }
   </style>
