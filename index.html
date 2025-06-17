@@ -5,7 +5,8 @@
   <title>مجوهرات السامر - أسعار الذهب</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* لضمان قياس أبعاد العناصر بشكل دقيق */
+    /* باقي التنسيقات كما هي */
+
     *, *::before, *::after {
       box-sizing: border-box;
     }
@@ -89,18 +90,21 @@
       font-weight: 600;
       text-decoration: none;
     }
+    /* حذف موضع ثابت .timestamp، ونجعله يظهر كتوسيط ضمن الملاحظة */
     .timestamp {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background-color: rgba(202, 183, 150, 0.15);
+      display: block;
+      margin-top: 6px;
       color: #5c4431;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 0.8em;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      font-size: 0.85em;
       font-weight: 600;
+      background-color: rgba(202, 183, 150, 0.15);
+      border-radius: 6px;
+      padding: 4px 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       white-space: nowrap;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
     }
     .note-box {
       background-color: #f0e8dc;
@@ -130,10 +134,11 @@
         font-size: 0.9em;
       }
       .timestamp {
-        font-size: 0.7em;
-        padding: 5px 8px;
-        top: 8px;
-        left: 8px;
+        font-size: 0.75em;
+        padding: 3px 6px;
+        white-space: normal;
+        width: 100%;
+        margin-top: 8px;
       }
       .note-box {
         font-size: 0.85em;
@@ -169,13 +174,14 @@
     <h2>Al Samer Jewellery</h2>
   </header>
 
-  <div id="last-updated" class="timestamp"></div>
+  <!-- حذف العنصر القديم للوقت -->
 
   <div id="card1" class="card"></div>
   <div id="card2" class="card"></div>
 
   <div class="note-box">
     📌 <strong>ملاحظة:</strong> نقدم متوسط الأسعار اليومية للذهب.
+    <div id="last-updated" class="timestamp"></div>
   </div>
 
   <footer>
