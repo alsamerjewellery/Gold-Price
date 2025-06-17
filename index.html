@@ -13,19 +13,17 @@
     }
     header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
     header h1 {
       font-size: 2.5em;
       margin: 0;
+      color: #4a3522;
     }
     header h2 {
-      font-size: 1.2em;
+      font-size: 1.4em;
+      margin-top: 5px;
       color: #a6895a;
-    }
-    input[type="file"] {
-      display: block;
-      margin: 20px auto;
     }
     .card {
       background-color: #fff;
@@ -56,14 +54,16 @@
     footer {
       text-align: center;
       margin-top: 40px;
+      color: #4a3522;
+      font-size: 1em;
     }
     footer .contact {
-      margin: 6px 0;
+      margin: 5px 0;
     }
     footer a {
       color: #4a3522;
-      text-decoration: none;
       font-weight: bold;
+      text-decoration: none;
     }
   </style>
 </head>
@@ -74,51 +74,52 @@
     <h2>Al Samer Jewellery</h2>
   </header>
 
-  <input type="file" id="fileInput" accept=".xlsx" />
-
-  <div id="cards"></div>
+  <div id="card1" class="card"></div>
+  <div id="card2" class="card"></div>
 
   <footer>
     <div class="contact">📍 أبوظبي - مدينة زايد للتسوق - مركز الذهب</div>
-    <div class="contact">📱 واتساب: <a href="https://wa.me/971504848825">+971504848825</a></div>
-    <div class="contact">🌐 <a href="https://alsamerjewellery.ae">alsamerjewellery.ae</a></div>
+    <div class="contact">📱 واتساب: <a href="https://wa.me/971504848825" target="_blank">+971504848825</a></div>
+    <div class="contact">🌐 <a href="https://alsamerjewellery.ae" target="_blank">alsamerjewellery.ae</a></div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    document.getElementById('fileInput').addEventListener('change', function (e) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
+    async function loadCSV() {
+      try {
+        const res = await fetch('data.csv?t=' + new Date().getTime());
+        const text = await res.text();
+        const lines = text.trim().split(/\r?\n/);
+        const rows = [];
 
-      reader.onload = function (e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        for (const line of lines) {
+          const parts = line.split(',');
+          if (parts.length < 2) continue;
 
-        renderCards(rows);
-      };
+          const label = parts[0].trim();
+          const value = parts.slice(1).join(',').trim(); // دمج بقية الأعمدة كقيمة
 
-      reader.readAsArrayBuffer(file);
-    });
-
-    function renderCards(rows) {
-      const container = document.getElementById('cards');
-      container.innerHTML = '';
-
-      let card = createCard();
-      rows.forEach(row => {
-        if (row.length < 2 || !row[0]) {
-          // إذا كانت الصفوف فارغة، نبدأ بطاقة جديدة
-          card = createCard();
-          return;
+          // نحاول إزالة أي رموز غير رقمية ماعدا الفاصلة والنقطة
+          const formattedValue = value.replace(/[^\d.,]/g, '').replace(/,/g, ',');
+          rows.push([label, formattedValue]);
         }
 
-        const label = row[0];
-        const value = row[1];
+        const card1Data = rows.slice(0, 2); // A1:B2
+        const card2Data = rows.slice(3, 8); // A4:B8
 
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'row';
+        renderCard('card1', card1Data);
+        renderCard('card2', card2Data);
+
+      } catch (err) {
+        console.error("CSV Error:", err);
+      }
+    }
+
+    function renderCard(id, data) {
+      const container = document.getElementById(id);
+      container.innerHTML = '';
+      data.forEach(([label, value]) => {
+        const row = document.createElement('div');
+        row.className = 'row';
 
         const labelDiv = document.createElement('div');
         labelDiv.className = 'label';
@@ -128,18 +129,13 @@
         valueDiv.className = 'value';
         valueDiv.textContent = value;
 
-        rowDiv.appendChild(labelDiv);
-        rowDiv.appendChild(valueDiv);
-        card.appendChild(rowDiv);
+        row.appendChild(labelDiv);
+        row.appendChild(valueDiv);
+        container.appendChild(row);
       });
-
-      function createCard() {
-        const newCard = document.createElement('div');
-        newCard.className = 'card';
-        container.appendChild(newCard);
-        return newCard;
-      }
     }
+
+    loadCSV();
   </script>
 
 </body>
