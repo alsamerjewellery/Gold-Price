@@ -3,45 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <title>مجوهرات السامر - أسعار الذهب</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       background-color: #f4f1ed;
       font-family: 'Cairo', sans-serif;
       margin: 0;
-      padding: 15px;
+      padding: 12px;
       color: #3b2f1d;
       position: relative;
     }
     header {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
     header h1 {
-      font-size: 2.2em;
+      font-size: 1.9em; /* أقل من السابق */
       margin: 0;
       color: #4a3522;
+      line-height: 1.2;
     }
     header h2 {
-      font-size: 1.2em;
-      margin-top: 5px;
+      font-size: 1.1em;
+      margin-top: 3px;
       color: #a6895a;
+      font-weight: 400;
     }
     .card {
       background-color: #fff;
       border: 2px solid #cbb69b;
-      border-radius: 12px;
-      padding: 15px;
-      margin: 20px auto;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 15px auto;
       width: 100%;
       max-width: 600px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-sizing: border-box;
     }
     .row {
       display: flex;
       justify-content: space-between;
       border-bottom: 1px dashed #c8b7a1;
-      padding: 10px 0;
+      padding: 8px 0;
       gap: 10px;
       flex-wrap: wrap;
     }
@@ -49,76 +52,94 @@
       border-bottom: none;
     }
     .label {
-      font-weight: bold;
-      flex: 1;
+      font-weight: 600;
+      flex: 1 1 45%; /* تسمح بالالتفاف والحد من المساحة */
+      min-width: 120px;
+      word-break: break-word;
     }
     .value {
-      font-weight: bold;
+      font-weight: 600;
       direction: ltr;
       color: #000;
-      flex: 1;
+      flex: 1 1 45%;
+      min-width: 80px;
       text-align: left;
+      word-break: break-word;
     }
     footer {
       text-align: center;
-      margin-top: 30px;
+      margin-top: 25px;
       color: #4a3522;
-      font-size: 0.95em;
+      font-size: 0.9em;
+      line-height: 1.4;
     }
     footer .contact {
       margin: 4px 0;
     }
     footer a {
       color: #4a3522;
-      font-weight: bold;
+      font-weight: 600;
       text-decoration: none;
     }
     .timestamp {
       position: absolute;
-      top: 15px;
-      left: 15px;
+      top: 12px;
+      left: 12px;
       background-color: rgba(202, 183, 150, 0.15);
       color: #5c4431;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 0.85em;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.8em;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-      font-weight: bold;
+      font-weight: 600;
+      white-space: nowrap;
     }
     .note-box {
       background-color: #f0e8dc;
       border: 1px solid #cbb69b;
-      border-radius: 10px;
-      padding: 12px;
-      margin: 20px auto 10px;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 15px auto 10px;
       width: 100%;
       max-width: 600px;
       text-align: center;
       color: #4a3522;
-      font-size: 0.95em;
+      font-size: 0.9em;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      font-weight: 600;
     }
 
     @media (max-width: 480px) {
       body {
-        padding: 10px;
+        padding: 8px;
       }
       header h1 {
-        font-size: 1.8em;
+        font-size: 1.6em;
       }
       header h2 {
         font-size: 1em;
       }
       .timestamp {
-        font-size: 0.75em;
-        padding: 6px 10px;
+        font-size: 0.7em;
+        padding: 5px 8px;
+        top: 8px;
+        left: 8px;
       }
       .note-box {
-        font-size: 0.9em;
-        padding: 10px;
+        font-size: 0.85em;
+        padding: 8px;
       }
       footer {
-        font-size: 0.85em;
+        font-size: 0.8em;
+      }
+      .label, .value {
+        flex-basis: 100%;
+        min-width: auto;
+        text-align: right;
+      }
+      .value {
+        direction: ltr;
+        text-align: left;
       }
     }
   </style>
@@ -135,15 +156,15 @@
   <div id="card1" class="card"></div>
   <div id="card2" class="card"></div>
 
+  <div class="note-box">
+    📌 <strong>ملاحظة:</strong> نقدم متوسط الأسعار اليومية للذهب.
+  </div>
+
   <footer>
     <div class="contact">📍 أبوظبي - مدينة زايد للتسوق - مركز الذهب</div>
     <div class="contact">📱 واتساب: <a href="https://wa.me/971504848825" target="_blank">+971504848825</a></div>
     <div class="contact">🌐 <a href="https://alsamerjewellery.ae" target="_blank">alsamerjewellery.ae</a></div>
   </footer>
-
-  <div class="note-box">
-    📌 <strong>ملاحظة:</strong> نقدم متوسط الأسعار اليومية للذهب.
-  </div>
 
   <script>
     function formatDateTime(date) {
