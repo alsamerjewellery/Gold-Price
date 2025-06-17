@@ -15,7 +15,7 @@
       text-align: center;
       color: #bfa054;
     }
-    .section-table {
+    .card-table {
       margin: 30px auto;
       padding: 15px;
       background-color: #fff9e6;
@@ -24,27 +24,27 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       max-width: 600px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th {
-      background-color: #bfa054;
-      color: white;
+    .item-row {
+      display: flex;
+      justify-content: space-between;
       padding: 10px;
-      font-size: 1.1em;
-    }
-    td {
-      background-color: #fff;
-      padding: 10px;
-      text-align: center;
-      font-size: 1.05em;
+      margin: 5px 0;
+      background-color: #ffffff;
+      border: 1px solid #eee;
+      border-radius: 5px;
       font-weight: bold;
       color: #222;
-      border: 1px solid #eee;
     }
-    tr:nth-child(even) td {
+    .item-row:nth-child(even) {
       background-color: #fdf5e6;
+    }
+    .label {
+      flex: 1;
+    }
+    .value {
+      color: #000;
+      flex-shrink: 0;
+      margin-right: 20px;
     }
     footer {
       margin-top: 50px;
@@ -73,43 +73,44 @@
 
 <script>
 async function fetchCSV() {
-  const res = await fetch('data.csv?t=' + new Date().getTime());
+  const res = await fetch('data.csv?t=' + new Date().getTime()); // لمنع التخزين المؤقت
   const text = await res.text();
   const lines = text.split(/\\r?\\n/);
 
   const container = document.getElementById('tablesContainer');
-  let tableRows = [];
+  let sectionItems = [];
 
-  function renderTable(rows) {
-    if (rows.length === 0) return;
+  function renderSection(items) {
+    if (items.length === 0) return;
     const section = document.createElement('div');
-    section.className = 'section-table';
-    const table = document.createElement('table');
-    rows.forEach(row => {
-      const tr = document.createElement('tr');
-      row.forEach(cell => {
-        const td = document.createElement('td');
-        td.textContent = cell;
-        tr.appendChild(td);
-      });
-      table.appendChild(tr);
+    section.className = 'card-table';
+    items.forEach(([label, value]) => {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      const labelDiv = document.createElement('div');
+      labelDiv.className = 'label';
+      labelDiv.textContent = label;
+      const valueDiv = document.createElement('div');
+      valueDiv.className = 'value';
+      valueDiv.textContent = value;
+      row.appendChild(labelDiv);
+      row.appendChild(valueDiv);
+      section.appendChild(row);
     });
-    section.appendChild(table);
     container.appendChild(section);
   }
 
   lines.forEach(line => {
-    const cells = line.split(',').map(cell => cell.trim());
-    const isEmptyLine = cells.every(cell => cell === '');
-    if (isEmptyLine) {
-      renderTable(tableRows);
-      tableRows = [];
+    const trimmed = line.trim();
+    if (trimmed === '') {
+      renderSection(sectionItems);
+      sectionItems = [];
     } else {
-      tableRows.push(cells);
+      const [label, value = ''] = line.split(',').map(cell => cell.trim());
+      sectionItems.push([label, value]);
     }
   });
-
-  renderTable(tableRows); // render remaining rows
+  renderSection(sectionItems); // عرض المجموعة الأخيرة
 }
 
 fetchCSV().catch(err => console.error("CSV loading error:", err));
