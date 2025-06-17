@@ -11,6 +11,7 @@
       padding: 20px;
       color: #3b2f1d;
       position: relative;
+      min-height: 100vh;
     }
     header {
       text-align: center;
@@ -78,50 +79,58 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       font-weight: bold;
     }
-    /* الصندوقين في أعلى يمين الصفحة */
+    /* صندوق إدخال السعر - أعلى يمين */
     .price-inputs {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: #fff8e1;
+      background-color: rgba(255, 255, 255, 0.95);
       border: 2px solid #cbb69b;
       border-radius: 12px;
-      padding: 15px 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 15px;
       max-width: 280px;
-      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      font-family: 'Cairo', sans-serif;
       z-index: 1000;
     }
     .price-inputs label {
       display: block;
       margin-bottom: 5px;
-      color: #4a3522;
       font-weight: bold;
+      color: #4a3522;
     }
-    .price-inputs input {
+    .price-inputs input[type="number"],
+    .price-inputs input[type="password"] {
       width: 100%;
-      padding: 6px 8px;
-      font-size: 1em;
-      margin-bottom: 15px;
-      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 12px;
       border: 1.5px solid #cbb69b;
-      text-align: left;
-      direction: ltr;
+      border-radius: 8px;
+      font-size: 1em;
+      font-family: 'Cairo', sans-serif;
+      color: #3b2f1d;
+      box-sizing: border-box;
     }
     .price-inputs button {
       width: 100%;
       background-color: #a6895a;
-      border: none;
       color: white;
-      font-weight: bold;
+      border: none;
       padding: 10px 0;
-      border-radius: 8px;
+      border-radius: 10px;
+      font-weight: bold;
       cursor: pointer;
+      font-size: 1.1em;
       transition: background-color 0.3s ease;
-      font-size: 1em;
     }
     .price-inputs button:hover {
-      background-color: #8c7849;
+      background-color: #846f3e;
+    }
+    .error-message {
+      color: red;
+      font-size: 0.9em;
+      margin-bottom: 8px;
+      display: none;
     }
   </style>
 </head>
@@ -137,28 +146,49 @@
   <div id="card1" class="card"></div>
   <div id="card2" class="card"></div>
 
-  <!-- صندوق الإدخال -->
-  <div class="price-inputs">
-    <label for="goldInput">سعر أونصة الذهب ($):</label>
-    <input type="number" id="goldInput" step="0.01" min="0" placeholder="أدخل سعر أونصة الذهب" />
-    
-    <label for="silverInput">سعر أونصة الفضة ($):</label>
-    <input type="number" id="silverInput" step="0.01" min="0" placeholder="أدخل سعر أونصة الفضة" />
-    
-    <button id="savePriceBtn">حفظ السعر (مطلوب كلمة المرور)</button>
-  </div>
-
   <footer>
     <div class="contact">📍 أبوظبي - مدينة زايد للتسوق - مركز الذهب</div>
     <div class="contact">📱 واتساب: <a href="https://wa.me/971504848825" target="_blank">+971504848825</a></div>
     <div class="contact">🌐 <a href="https://alsamerjewellery.ae" target="_blank">alsamerjewellery.ae</a></div>
   </footer>
 
-  <script>
-    // كلمة المرور لتغيير السعر
-    const PASSWORD = '1234'; // غيرها حسب ما تريد
+  <div class="price-inputs">
+    <div class="error-message" id="error-msg"></div>
+    <label for="gold-ounce">سعر أونصة الذهب (دولار)</label>
+    <input type="number" id="gold-ounce" step="0.01" placeholder="ادخل سعر أونصة الذهب" />
+    
+    <label for="silver-ounce">سعر أونصة الفضة (دولار)</label>
+    <input type="number" id="silver-ounce" step="0.01" placeholder="ادخل سعر أونصة الفضة" />
+    
+    <label for="password">كلمة المرور</label>
+    <input type="password" id="password" placeholder="أدخل كلمة المرور" />
+    
+    <button id="save-btn">حفظ السعر</button>
+  </div>
 
-    // دوال مساعدة
+  <script>
+    const PASSWORD = 'Alsamerj@935@';
+    const ADDITIONAL_COST = 21; // 21 دولار تضاف لسعر الأونصة عند حساب العيارات
+
+    // العناصر
+    const goldInput = document.getElementById('gold-ounce');
+    const silverInput = document.getElementById('silver-ounce');
+    const passwordInput = document.getElementById('password');
+    const saveBtn = document.getElementById('save-btn');
+    const errorMsg = document.getElementById('error-msg');
+    const lastUpdated = document.getElementById('last-updated');
+
+    // عيارات الذهب المستخدمة مع اسمائها
+    const goldGrades = [
+      { label: 'ذهب عيار 24', ratio: 1 },
+      { label: 'ذهب عيار 22', ratio: 22/24 },
+      { label: 'ذهب عيار 21', ratio: 21/24 },
+      { label: 'ذهب عيار 18', ratio: 18/24 },
+      { label: 'ذهب عيار 14', ratio: 14/24 },
+      { label: 'ذهب عيار 12', ratio: 12/24 }
+    ];
+
+    // دالة فورمات التاريخ والوقت عربي
     function formatDateTime(date) {
       return date.toLocaleString('ar-EG', {
         weekday: 'long',
@@ -170,119 +200,142 @@
       });
     }
 
-    // حساب سعر الجرام من أونصة الذهب مضاف لها 21 دولار
-    function calcGoldGradesPrices(ouncePrice) {
-      // 1 أونصة = 31.1035 جرام
-      const gramPrice = ouncePrice / 31.1035 + 21;
-      return {
-        'عيار 24': gramPrice.toFixed(2),
-        'عيار 22': (gramPrice * 22 / 24).toFixed(2),
-        'عيار 21': (gramPrice * 21 / 24).toFixed(2),
-        'عيار 18': (gramPrice * 18 / 24).toFixed(2),
-        'عيار 14': (gramPrice * 14 / 24).toFixed(2),
-        'عيار 12': (gramPrice * 12 / 24).toFixed(2),
+    // حفظ الأسعار مع التاريخ في localStorage
+    function savePrices(goldPrice, silverPrice) {
+      const now = new Date();
+      const data = {
+        goldPrice,
+        silverPrice,
+        timestamp: now.getTime()
       };
+      localStorage.setItem('goldSilverPrices', JSON.stringify(data));
     }
 
-    // حساب سعر الجرام من أونصة الفضة مضاف لها 21 دولار (يمكن حسب الحاجة)
-    function calcSilverGradesPrices(ouncePrice) {
-      const gramPrice = ouncePrice / 31.1035 + 21;
-      return {
-        'فضة عيار 999': gramPrice.toFixed(2),
-        'فضة عيار 925': (gramPrice * 0.925).toFixed(2),
-      };
+    // جلب الأسعار من localStorage مع التحقق من صلاحية 24 ساعة
+    function loadPrices() {
+      const dataRaw = localStorage.getItem('goldSilverPrices');
+      if (!dataRaw) return null;
+      try {
+        const data = JSON.parse(dataRaw);
+        const now = Date.now();
+        // إذا مر أكثر من 24 ساعة (86400000 مللي ثانية) يرجع null (تحديث السعر مطلوب)
+        if (now - data.timestamp > 86400000) {
+          localStorage.removeItem('goldSilverPrices');
+          return null;
+        }
+        return data;
+      } catch {
+        localStorage.removeItem('goldSilverPrices');
+        return null;
+      }
     }
 
-    // عرض الأسعار في الكروت
-    function renderPrices(goldOunce, silverOunce) {
-      const goldPrices = calcGoldGradesPrices(goldOunce);
-      const silverPrices = calcSilverGradesPrices(silverOunce);
+    // عرض الأسعار في البطاقة الثانية (card2) بنفس التصميم
+    function renderGoldGradesPrices(goldOuncePrice) {
+      const card2 = document.getElementById('card2');
+      card2.innerHTML = ''; // مسح المحتوى القديم
 
-      // بطاقة الذهب (card1)
-      const card1Data = Object.entries(goldPrices);
-      renderCard('card1', card1Data);
-
-      // بطاقة الفضة (card2)
-      const card2Data = Object.entries(silverPrices);
-      renderCard('card2', card2Data);
-    }
-
-    // عرض بيانات الكروت
-    function renderCard(id, data) {
-      const container = document.getElementById(id);
-      container.innerHTML = '';
-      data.forEach(([label, value]) => {
+      goldGrades.forEach(grade => {
         const row = document.createElement('div');
         row.className = 'row';
 
         const labelDiv = document.createElement('div');
         labelDiv.className = 'label';
-        labelDiv.textContent = label;
+        labelDiv.textContent = grade.label;
 
         const valueDiv = document.createElement('div');
         valueDiv.className = 'value';
-        valueDiv.textContent = value;
+
+        // حساب السعر بالجرام = ((سعر الأونصة + 21) * النسبة) / 31.1035
+        const pricePerGram = ((goldOuncePrice + ADDITIONAL_COST) * grade.ratio) / 31.1035;
+        valueDiv.textContent = pricePerGram.toFixed(2) + ' $';
 
         row.appendChild(labelDiv);
         row.appendChild(valueDiv);
-        container.appendChild(row);
+        card2.appendChild(row);
       });
     }
 
-    // تحميل الأسعار من التخزين المحلي أو تعيين قيم فارغة
-    function loadPricesFromStorage() {
-      const gold = localStorage.getItem('goldOuncePrice');
-      const silver = localStorage.getItem('silverOuncePrice');
-      return {
-        goldOuncePrice: gold ? parseFloat(gold) : null,
-        silverOuncePrice: silver ? parseFloat(silver) : null
-      };
+    // عرض أسعار الأونصة للذهب والفضة في البطاقة الأولى (card1)
+    function renderOuncePrices(goldOunce, silverOunce) {
+      const card1 = document.getElementById('card1');
+      card1.innerHTML = ''; // مسح المحتوى القديم
+
+      const goldRow = document.createElement('div');
+      goldRow.className = 'row';
+      const goldLabel = document.createElement('div');
+      goldLabel.className = 'label';
+      goldLabel.textContent = 'سعر أونصة الذهب';
+      const goldValue = document.createElement('div');
+      goldValue.className = 'value';
+      goldValue.textContent = goldOunce.toFixed(2) + ' $';
+      goldRow.appendChild(goldLabel);
+      goldRow.appendChild(goldValue);
+
+      const silverRow = document.createElement('div');
+      silverRow.className = 'row';
+      const silverLabel = document.createElement('div');
+      silverLabel.className = 'label';
+      silverLabel.textContent = 'سعر أونصة الفضة';
+      const silverValue = document.createElement('div');
+      silverValue.className = 'value';
+      silverValue.textContent = silverOunce.toFixed(2) + ' $';
+      silverRow.appendChild(silverLabel);
+      silverRow.appendChild(silverValue);
+
+      card1.appendChild(goldRow);
+      card1.appendChild(silverRow);
     }
 
-    // حفظ الأسعار في التخزين المحلي
-    function savePricesToStorage(goldPrice, silverPrice) {
-      localStorage.setItem('goldOuncePrice', goldPrice);
-      localStorage.setItem('silverOuncePrice', silverPrice);
-      localStorage.setItem('priceSavedAt', new Date().toISOString());
+    // تحميل الأسعار من localStorage أو تهيئة الفيو
+    function initializePrices() {
+      const saved = loadPrices();
+      if (saved) {
+        goldInput.value = saved.goldPrice;
+        silverInput.value = saved.silverPrice;
+        renderOuncePrices(saved.goldPrice, saved.silverPrice);
+        renderGoldGradesPrices(saved.goldPrice);
+        lastUpdated.textContent = 'تم تحديث السعر بتاريخ: ' + formatDateTime(new Date(saved.timestamp));
+      } else {
+        // لو ما في أسعار محفوظة، خلي الصناديق فاضية والبطاقات فارغة
+        goldInput.value = '';
+        silverInput.value = '';
+        lastUpdated.textContent = '';
+        document.getElementById('card1').innerHTML = '';
+        document.getElementById('card2').innerHTML = '';
+      }
     }
 
-    // التحقق من كلمة المرور عند حفظ السعر
-    function verifyPasswordAndSave() {
-      const goldInput = document.getElementById('goldInput');
-      const silverInput = document.getElementById('silverInput');
-      const goldPrice = parseFloat(goldInput.value);
-      const silverPrice = parseFloat(silverInput.value);
-
-      if (isNaN(goldPrice) || isNaN(silverPrice)) {
-        alert('يرجى إدخال أسعار صحيحة لكل من الذهب والفضة.');
+    // حدث الضغط على زر الحفظ مع التحقق من كلمة المرور
+    saveBtn.addEventListener('click', () => {
+      errorMsg.style.display = 'none';
+      const enteredPassword = passwordInput.value;
+      if (enteredPassword !== PASSWORD) {
+        errorMsg.textContent = 'كلمة المرور غير صحيحة';
+        errorMsg.style.display = 'block';
         return;
       }
 
-      const enteredPassword = prompt('الرجاء إدخال كلمة المرور لتغيير السعر:');
-      if (enteredPassword === PASSWORD) {
-        savePricesToStorage(goldPrice, silverPrice);
-        renderPrices(goldPrice, silverPrice);
-        alert('تم حفظ الأسعار بنجاح!');
-      } else {
-        alert('كلمة المرور غير صحيحة.');
-      }
-    }
+      const goldPrice = parseFloat(goldInput.value);
+      const silverPrice = parseFloat(silverInput.value);
 
-    // عند تحميل الصفحة، نحاول تحميل الأسعار من التخزين ونعرضها
-    window.addEventListener('DOMContentLoaded', () => {
-      const prices = loadPricesFromStorage();
-      const now = new Date();
-      document.getElementById('last-updated').textContent = formatDateTime(now);
-
-      if (prices.goldOuncePrice !== null && prices.silverOuncePrice !== null) {
-        // نعبي الحقول بالقيم المحفوظة
-        document.getElementById('goldInput').value = prices.goldOuncePrice;
-        document.getElementById('silverInput').value = prices.silverOuncePrice;
-        renderPrices(prices.goldOuncePrice, prices.silverOuncePrice);
+      if (isNaN(goldPrice) || goldPrice <= 0 || isNaN(silverPrice) || silverPrice <= 0) {
+        errorMsg.textContent = 'الرجاء إدخال أسعار صحيحة أكبر من صفر';
+        errorMsg.style.display = 'block';
+        return;
       }
 
-      // ربط الزر بالحفظ مع التحقق من كلمة المرور
-      document.getElementById('savePriceBtn').addEventListener('click', verifyPasswordAndSave);
+      savePrices(goldPrice, silverPrice);
+      initializePrices();
+
+      // مسح حقل كلمة المرور بعد الحفظ
+      passwordInput.value = '';
+      alert('تم حفظ الأسعار بنجاح!');
+    });
+
+    // تهيئة الصفحة عند التحميل
+    window.addEventListener('load', () => {
+      initializePrices();
     });
   </script>
 
