@@ -5,10 +5,12 @@
   <title>مجوهرات السامر - أسعار الذهب</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* التنسيقات كما في الكود السابق */
+    /* باقي التنسيقات كما هي */
+
     *, *::before, *::after {
       box-sizing: border-box;
     }
+
     body {
       background-color: #f4f1ed;
       font-family: 'Cairo', sans-serif;
@@ -19,19 +21,23 @@
       font-size: 14px;
       line-height: 1.4;
     }
+
+    /* الخط البني العريض أعلى الصفحة */
     .top-line {
       width: 100%;
-      height: 6px;
-      background-color: #4a3522;
+      height: 6px; /* عريض قليلاً */
+      background-color: #4a3522; /* بني غامق */
       margin-bottom: 12px;
       box-shadow: 0 2px 5px rgba(74, 53, 34, 0.5);
     }
+
+    /* زر تواصل معنا */
     .contact-button {
       display: block;
       width: 140px;
       margin: 0 auto 12px auto;
       padding: 10px 18px;
-      background-color: #4a3522;
+      background-color: #4a3522; /* بني غامق */
       color: #f4f1ed;
       font-weight: 700;
       font-size: 1em;
@@ -45,9 +51,10 @@
       user-select: none;
     }
     .contact-button:hover {
-      background-color: #6b5134;
+      background-color: #6b5134; /* لون بني فاتح عند المرور */
       box-shadow: 0 6px 12px rgba(107, 81, 52, 0.5);
     }
+
     header {
       text-align: center;
       margin-bottom: 18px;
@@ -117,6 +124,7 @@
       font-weight: 600;
       text-decoration: none;
     }
+
     .timestamp {
       display: block;
       margin-top: 6px;
@@ -146,6 +154,8 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       font-weight: 600;
     }
+
+    /* التوافق مع الشاشات الصغيرة */
     @media (max-width: 480px) {
       body {
         padding: 8px 6px;
@@ -188,6 +198,8 @@
         padding: 6px 0;
         gap: 8px;
       }
+
+      /* زر التواصل في الموبايل */
       .contact-button {
         width: 100%;
         max-width: 300px;
@@ -209,6 +221,7 @@
   </header>
 
   <div id="card1" class="card"></div>
+  <div id="card2" class="card"></div>
 
   <div class="note-box">
     📌 <strong>ملاحظة:</strong> نقدم متوسط الأسعار اليومية للذهب.
@@ -222,17 +235,6 @@
   </footer>
 
   <script>
-    const API_KEY = '0i7s8w4kac1n8f53j762j57pa152oqu0r0n37aoi668933zkc5n0woip9t88';
-    // خدمة تجاوز CORS للتجربة فقط:
-    const PROXY = 'https://cors-anywhere.herokuapp.com/';
-
-    // API endpoint مع تحديد رموز المعادن الذهب (XAU) والفضة (XAG) والدرهم (AED)
-    const API_URL = ${PROXY}https://metals-api.com/api/latest?access_key=${API_KEY}&base=USD&symbols=XAU,XAG,AED;
-
-    // مفتاح التخزين المحلي لتخزين الأسعار والتوقيت
-    const STORAGE_KEY = 'metals_prices_data';
-
-    // الدالة لتنسيق التاريخ بالعربية
     function formatDateTime(date) {
       return date.toLocaleString('ar-EG', {
         weekday: 'long',
@@ -244,28 +246,41 @@
       });
     }
 
-    // عرض الأسعار في الصفحة
-    function renderPrices(data) {
-      const card = document.getElementById('card1');
-      card.innerHTML = '';
+    async function loadCSV() {
+      try {
+        const res = await fetch('data.csv?t=' + new Date().getTime());
+        const text = await res.text();
+        const lines = text.trim().split(/\r?\n/);
+        const rows = [];
 
-      // مثال: سعر الذهب بالدرهم = سعر الذهب بالدولار ÷ سعر الدرهم بالدولار
-      const priceUSD_XAU = data.rates.XAU;
-      const priceUSD_XAG = data.rates.XAG;
-      const priceUSD_AED = data.rates.AED;
+        for (const line of lines) {
+          const parts = line.split(',');
+          if (parts.length < 2) continue;
 
-      // نحول سعر الذهب والفضة للدرهم الإماراتي (AED)
-      const priceAED_XAU = priceUSD_XAU / priceUSD_AED;
-      const priceAED_XAG = priceUSD_XAG / priceUSD_AED;
+          const label = parts[0].trim();
+          const value = parts.slice(1).join(',').trim();
+          const formattedValue = value.replace(/[^\d.,]/g, '').replace(/,/g, ',');
+          rows.push([label, formattedValue]);
+        }
 
-      const rows = [
-        ['سعر أونصة الذهب (XAU) بالدولار الأمريكي', priceUSD_XAU.toFixed(2) + ' $'],
-        ['سعر أونصة الذهب (XAU) بالدرهم الإماراتي', priceAED_XAU.toFixed(2) + ' د.إ'],
-        ['سعر أونصة الفضة (XAG) بالدولار الأمريكي', priceUSD_XAG.toFixed(2) + ' $'],
-        ['سعر أونصة الفضة (XAG) بالدرهم الإماراتي', priceAED_XAG.toFixed(2) + ' د.إ'],
-      ];
+        const card1Data = rows.slice(0, 2);
+        const card2Data = rows.slice(3, 8);
 
-      rows.forEach(([label, value]) => {
+        renderCard('card1', card1Data);
+        renderCard('card2', card2Data);
+
+        const now = new Date();
+        document.getElementById('last-updated').textContent = formatDateTime(now);
+
+      } catch (err) {
+        console.error("CSV Error:", err);
+      }
+    }
+
+    function renderCard(id, data) {
+      const container = document.getElementById(id);
+      container.innerHTML = '';
+      data.forEach(([label, value]) => {
         const row = document.createElement('div');
         row.className = 'row';
 
@@ -279,60 +294,11 @@
 
         row.appendChild(labelDiv);
         row.appendChild(valueDiv);
-        card.appendChild(row);
+        container.appendChild(row);
       });
-
-      document.getElementById('last-updated').textContent = 'آخر تحديث: ' + formatDateTime(new Date(data.timestamp * 1000));
     }
 
-    async function fetchPrices() {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('خطأ في جلب البيانات');
-        const data = await response.json();
-        if (data.success === false) throw new Error(data.error ? data.error.info : 'خطأ في استجابة API');
-
-        // تحديث التخزين المحلي
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        renderPrices(data);
-      } catch (err) {
-        console.error('فشل تحميل الأسعار:', err);
-        // جرب تحميل البيانات المخزنة محليًا إذا موجودة
-        const cached = localStorage.getItem(STORAGE_KEY);
-        if (cached) {
-          const data = JSON.parse(cached);
-          renderPrices(data);
-        } else {
-          document.getElementById('card1').textContent = 'تعذر تحميل الأسعار حالياً.';
-        }
-      }
-    }
-
-    function shouldUpdatePrices() {
-      const cached = localStorage.getItem(STORAGE_KEY);
-      if (!cached) return true;
-      const data = JSON.parse(cached);
-      const lastUpdate = data.timestamp * 1000;
-      const now = Date.now();
-      const oneHour = 60 * 60 * 1000;
-      return now - lastUpdate > oneHour;
-    }
-
-    // عند تحميل الصفحة، نقرر هل نحدث البيانات أو نستخدم المخزنة محلياً
-    window.addEventListener('DOMContentLoaded', () => {
-      if (shouldUpdatePrices()) {
-        fetchPrices();
-      } else {
-        // نعرض البيانات المخزنة محلياً بدون تحديث
-        const cached = localStorage.getItem(STORAGE_KEY);
-        if (cached) {
-          const data = JSON.parse(cached);
-          renderPrices(data);
-        } else {
-          fetchPrices();
-        }
-      }
-    });
+    loadCSV();
   </script>
 
 </body>
