@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>مجوهرات السامر - أسعار الذهب</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       background-color: #f4f1ed;
@@ -11,12 +11,10 @@
       margin: 0;
       padding: 20px;
       color: #3b2f1d;
-      position: relative;
-      min-height: 100vh;
     }
     header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
     header h1 {
       font-size: 2em;
@@ -33,78 +31,65 @@
       border: 2px solid #cbb69b;
       border-radius: 12px;
       padding: 15px;
-      margin: 15px auto;
-      max-width: 600px;
+      margin: 20px auto;
+      max-width: 100%;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
     .row {
       display: flex;
       justify-content: space-between;
       border-bottom: 1px dashed #c8b7a1;
-      padding: 10px 0;
-      font-size: 1em;
+      padding: 8px 0;
     }
     .row:last-child {
       border-bottom: none;
     }
     .label {
       font-weight: bold;
+      font-size: 1em;
     }
     .value {
       font-weight: bold;
       direction: ltr;
       color: #000;
+      font-size: 1em;
     }
     footer {
       text-align: center;
-      margin-top: 40px;
+      margin-top: 30px;
       color: #4a3522;
-      font-size: 1em;
-    }
-    footer .contact {
-      margin: 5px 0;
-    }
-    footer a {
-      color: #4a3522;
-      font-weight: bold;
-      text-decoration: none;
+      font-size: 0.9em;
     }
     .timestamp {
-      position: static;
-      background-color: rgba(202, 183, 150, 0.15);
-      color: #5c4431;
-      padding: 10px 15px;
-      border-radius: 10px;
-      font-size: 0.9em;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-      font-weight: bold;
       text-align: center;
       margin-bottom: 15px;
+      font-size: 0.85em;
+      color: #5c4431;
     }
+
+    /* صندوق إدخال السعر */
     .price-inputs {
-      background-color: #fff;
+      background-color: rgba(255, 255, 255, 0.95);
       border: 2px solid #cbb69b;
       border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 15px;
+      padding: 10px;
+      margin-bottom: 20px;
       max-width: 100%;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     .price-inputs label {
       display: block;
-      margin-bottom: 4px;
-      font-weight: bold;
-      color: #4a3522;
+      margin-bottom: 3px;
       font-size: 0.9em;
+      font-weight: bold;
     }
     .price-inputs input {
       width: 100%;
-      padding: 6px 8px;
-      margin-bottom: 10px;
-      border: 1px solid #cbb69b;
-      border-radius: 6px;
+      padding: 6px;
       font-size: 0.9em;
-      font-family: 'Cairo', sans-serif;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid #cbb69b;
+      box-sizing: border-box;
     }
     .price-inputs button {
       width: 100%;
@@ -113,26 +98,21 @@
       border: none;
       padding: 8px 0;
       border-radius: 8px;
+      font-size: 1em;
       font-weight: bold;
       cursor: pointer;
-      font-size: 0.95em;
-      transition: background-color 0.3s ease;
-    }
-    .price-inputs button:hover {
-      background-color: #846f3e;
     }
     .error-message {
       color: red;
-      font-size: 0.8em;
+      font-size: 0.85em;
       margin-bottom: 8px;
       display: none;
     }
+
     @media (min-width: 600px) {
       .price-inputs {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        width: 250px;
+        max-width: 320px;
+        margin: auto;
       }
     }
   </style>
@@ -144,32 +124,34 @@
     <h2>Al Samer Jewellery</h2>
   </header>
 
-  <div id="last-updated" class="timestamp"></div>
-
   <div class="price-inputs">
     <div class="error-message" id="error-msg"></div>
     <label for="gold-ounce">سعر أونصة الذهب (دولار)</label>
-    <input type="number" id="gold-ounce" step="0.01" placeholder="أدخل سعر الذهب" />
+    <input type="number" id="gold-ounce" step="0.01" placeholder="مثلاً: 2330.00" />
+
     <label for="silver-ounce">سعر أونصة الفضة (دولار)</label>
-    <input type="number" id="silver-ounce" step="0.01" placeholder="أدخل سعر الفضة" />
+    <input type="number" id="silver-ounce" step="0.01" placeholder="مثلاً: 29.00" />
+
     <label for="password">كلمة المرور</label>
-    <input type="password" id="password" placeholder="أدخل كلمة المرور" />
+    <input type="password" id="password" placeholder="كلمة المرور" />
+
     <button id="save-btn">حفظ السعر</button>
   </div>
 
+  <div class="timestamp" id="last-updated"></div>
   <div id="card1" class="card"></div>
   <div id="card2" class="card"></div>
 
   <footer>
-    <div class="contact">📍 أبوظبي - مدينة زايد للتسوق - مركز الذهب</div>
-    <div class="contact">📱 واتساب: <a href="https://wa.me/971504848825" target="_blank">+971504848825</a></div>
-    <div class="contact">🌐 <a href="https://alsamerjewellery.ae" target="_blank">alsamerjewellery.ae</a></div>
+    <div>📍 أبوظبي - مدينة زايد للتسوق - مركز الذهب</div>
+    <div>📱 <a href="https://wa.me/971504848825" target="_blank">+971504848825</a></div>
+    <div>🌐 <a href="https://alsamerjewellery.ae" target="_blank">alsamerjewellery.ae</a></div>
   </footer>
 
   <script>
-    const PASSWORD = 'Alsamerj@935@';
-    const ADDITIONAL_COST = 21;
     const USD_TO_AED = 3.67;
+    const ADDITIONAL_COST = 21;
+    const PASSWORD = 'Alsamerj@935@';
 
     const goldInput = document.getElementById('gold-ounce');
     const silverInput = document.getElementById('silver-ounce');
@@ -182,14 +164,11 @@
       { label: 'ذهب عيار 24', ratio: 1 },
       { label: 'ذهب عيار 22', ratio: 22/24 },
       { label: 'ذهب عيار 21', ratio: 21/24 },
-      { label: 'ذهب عيار 18', ratio: 18/24 },
-      { label: 'ذهب عيار 14', ratio: 14/24 },
-      { label: 'ذهب عيار 12', ratio: 12/24 }
+      { label: 'ذهب عيار 18', ratio: 18/24 }
     ];
 
     function formatDateTime(date) {
       return date.toLocaleString('ar-EG', {
-        weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -213,8 +192,7 @@
       if (!dataRaw) return null;
       try {
         const data = JSON.parse(dataRaw);
-        const now = Date.now();
-        if (now - data.timestamp > 86400000) {
+        if (Date.now() - data.timestamp > 86400000) {
           localStorage.removeItem('goldSilverPrices');
           return null;
         }
@@ -225,44 +203,28 @@
       }
     }
 
-    function renderGoldGradesPrices(goldOuncePrice) {
+    function renderOuncePrices(gold, silver) {
+      const card1 = document.getElementById('card1');
+      card1.innerHTML = `
+        <div class="row"><div class="label">أونصة الذهب</div><div class="value">${gold.toFixed(2)} $</div></div>
+        <div class="row"><div class="label">أونصة الفضة</div><div class="value">${silver.toFixed(2)} $</div></div>
+      `;
+    }
+
+    function renderGoldGradesPrices(goldPriceUSD) {
       const card2 = document.getElementById('card2');
       card2.innerHTML = '';
       goldGrades.forEach(grade => {
+        const gramsPriceUSD = ((goldPriceUSD + ADDITIONAL_COST) * grade.ratio) / 31.1035;
+        const gramsPriceAED = gramsPriceUSD * USD_TO_AED;
         const row = document.createElement('div');
         row.className = 'row';
-
-        const labelDiv = document.createElement('div');
-        labelDiv.className = 'label';
-        labelDiv.textContent = grade.label;
-
-        const valueDiv = document.createElement('div');
-        valueDiv.className = 'value';
-
-        const pricePerGramUSD = ((goldOuncePrice + ADDITIONAL_COST) * grade.ratio) / 31.1035;
-        const priceAED = pricePerGramUSD * USD_TO_AED;
-        valueDiv.textContent = priceAED.toFixed(2) + ' د.إ';
-
-        row.appendChild(labelDiv);
-        row.appendChild(valueDiv);
+        row.innerHTML = `
+          <div class="label">${grade.label}</div>
+          <div class="value">${gramsPriceAED.toFixed(2)} درهم</div>
+        `;
         card2.appendChild(row);
       });
-    }
-
-    function renderOuncePrices(goldOunce, silverOunce) {
-      const card1 = document.getElementById('card1');
-      card1.innerHTML = '';
-
-      const goldRow = document.createElement('div');
-      goldRow.className = 'row';
-      goldRow.innerHTML = <div class="label">سعر أونصة الذهب</div><div class="value">${(goldOunce * USD_TO_AED).toFixed(2)} د.إ</div>;
-
-      const silverRow = document.createElement('div');
-      silverRow.className = 'row';
-      silverRow.innerHTML = <div class="label">سعر أونصة الفضة</div><div class="value">${(silverOunce * USD_TO_AED).toFixed(2)} د.إ</div>;
-
-      card1.appendChild(goldRow);
-      card1.appendChild(silverRow);
     }
 
     function initializePrices() {
@@ -272,35 +234,27 @@
         silverInput.value = saved.silverPrice;
         renderOuncePrices(saved.goldPrice, saved.silverPrice);
         renderGoldGradesPrices(saved.goldPrice);
-        lastUpdated.textContent = 'تم تحديث السعر بتاريخ: ' + formatDateTime(new Date(saved.timestamp));
-      } else {
-        goldInput.value = '';
-        silverInput.value = '';
-        lastUpdated.textContent = '';
-        document.getElementById('card1').innerHTML = '';
-        document.getElementById('card2').innerHTML = '';
+        lastUpdated.textContent = 'آخر تحديث: ' + formatDateTime(new Date(saved.timestamp));
       }
     }
 
     saveBtn.addEventListener('click', () => {
       errorMsg.style.display = 'none';
-      const enteredPassword = passwordInput.value;
-      if (enteredPassword !== PASSWORD) {
+      if (passwordInput.value !== PASSWORD) {
         errorMsg.textContent = 'كلمة المرور غير صحيحة';
         errorMsg.style.display = 'block';
         return;
       }
 
-      const goldPrice = parseFloat(goldInput.value);
-      const silverPrice = parseFloat(silverInput.value);
-
-      if (isNaN(goldPrice) || goldPrice <= 0 || isNaN(silverPrice) || silverPrice <= 0) {
-        errorMsg.textContent = 'الرجاء إدخال أسعار صحيحة أكبر من صفر';
+      const gold = parseFloat(goldInput.value);
+      const silver = parseFloat(silverInput.value);
+      if (isNaN(gold) || isNaN(silver) || gold <= 0 || silver <= 0) {
+        errorMsg.textContent = 'يرجى إدخال أسعار صحيحة';
         errorMsg.style.display = 'block';
         return;
       }
 
-      savePrices(goldPrice, silverPrice);
+      savePrices(gold, silver);
       initializePrices();
       passwordInput.value = '';
       alert('تم حفظ الأسعار بنجاح!');
@@ -310,5 +264,6 @@
       initializePrices();
     });
   </script>
+
 </body>
 </html>
