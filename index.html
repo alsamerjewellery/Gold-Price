@@ -3,26 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <title>مجوهرات السامر - أسعار الذهب</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       background-color: #f4f1ed;
       font-family: 'Cairo', sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 15px;
       color: #3b2f1d;
       position: relative;
     }
     header {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
     header h1 {
-      font-size: 2.5em;
+      font-size: 2.2em;
       margin: 0;
       color: #4a3522;
     }
     header h2 {
-      font-size: 1.4em;
+      font-size: 1.2em;
       margin-top: 5px;
       color: #a6895a;
     }
@@ -30,8 +31,9 @@
       background-color: #fff;
       border: 2px solid #cbb69b;
       border-radius: 12px;
-      padding: 20px;
-      margin: 25px auto;
+      padding: 15px;
+      margin: 20px auto;
+      width: 100%;
       max-width: 600px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
@@ -40,26 +42,31 @@
       justify-content: space-between;
       border-bottom: 1px dashed #c8b7a1;
       padding: 10px 0;
+      gap: 10px;
+      flex-wrap: wrap;
     }
     .row:last-child {
       border-bottom: none;
     }
     .label {
       font-weight: bold;
+      flex: 1;
     }
     .value {
       font-weight: bold;
       direction: ltr;
       color: #000;
+      flex: 1;
+      text-align: left;
     }
     footer {
       text-align: center;
-      margin-top: 40px;
+      margin-top: 30px;
       color: #4a3522;
-      font-size: 1em;
+      font-size: 0.95em;
     }
     footer .contact {
-      margin: 5px 0;
+      margin: 4px 0;
     }
     footer a {
       color: #4a3522;
@@ -68,13 +75,13 @@
     }
     .timestamp {
       position: absolute;
-      top: 20px;
-      left: 20px;
+      top: 15px;
+      left: 15px;
       background-color: rgba(202, 183, 150, 0.15);
       color: #5c4431;
-      padding: 10px 15px;
+      padding: 8px 12px;
       border-radius: 10px;
-      font-size: 0.9em;
+      font-size: 0.85em;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       font-weight: bold;
     }
@@ -82,13 +89,37 @@
       background-color: #f0e8dc;
       border: 1px solid #cbb69b;
       border-radius: 10px;
-      padding: 15px;
-      margin: 25px auto 10px;
+      padding: 12px;
+      margin: 20px auto 10px;
+      width: 100%;
       max-width: 600px;
       text-align: center;
       color: #4a3522;
-      font-size: 1em;
+      font-size: 0.95em;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      header h1 {
+        font-size: 1.8em;
+      }
+      header h2 {
+        font-size: 1em;
+      }
+      .timestamp {
+        font-size: 0.75em;
+        padding: 6px 10px;
+      }
+      .note-box {
+        font-size: 0.9em;
+        padding: 10px;
+      }
+      footer {
+        font-size: 0.85em;
+      }
     }
   </style>
 </head>
@@ -110,7 +141,6 @@
     <div class="contact">🌐 <a href="https://alsamerjewellery.ae" target="_blank">alsamerjewellery.ae</a></div>
   </footer>
 
-  <!-- ملاحظة أسفل الصفحة -->
   <div class="note-box">
     📌 <strong>ملاحظة:</strong> نقدم متوسط الأسعار اليومية للذهب.
   </div>
