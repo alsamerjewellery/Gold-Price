@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Gold Prices - Al Samer Jewellery</title>
+  <title>أسعار الذهب - مجوهرات السامر</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -28,8 +28,8 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    .rate-card h3 {
-      margin: 5px 0;
+    .rate-title {
+      font-size: 1.1em;
       color: #555;
     }
 
@@ -88,7 +88,8 @@
 <h2>Al Samer Jewellery</h2>
 
 <div id="ratesContainer"></div>
-<table class="gold-table" id="goldTable">
+
+<table class="gold-table" id="goldTable" style="display: none;">
   <thead>
     <tr><th>العيار</th><th>السعر لكل غرام</th></tr>
   </thead>
@@ -109,39 +110,33 @@
 
     const ratesContainer = document.getElementById('ratesContainer');
     const goldTableBody = document.getElementById('goldTableBody');
+    const goldTable = document.getElementById('goldTable');
 
-    let inTable = false;
+    let inGoldTable = false;
 
     for (let line of lines) {
       const parts = line.split(',').map(p => p.trim());
 
-      if (parts[0].toLowerCase().includes("ounce rate")) {
-        // عرض بطاقة السعر
-        const rateType = parts[0].replace(/rate/gi, "Rate").replace("Ounce", "Ounce").trim();
-        const rateValue = parts[1] || '---';
-
-        const card = document.createElement('div');
-        card.className = 'rate-card';
-        card.innerHTML = `
-          <h3>${rateType}</h3>
-          <div class="rate-value">${rateValue}</div>
-        `;
-        ratesContainer.appendChild(card);
-      }
-      else if (parts[0].toLowerCase().includes("gold price per gram")) {
-        inTable = true;
-      }
-      else if (inTable && parts.length === 2) {
-        const tr = document.createElement('tr');
-        const td1 = document.createElement('td');
-        const td2 = document.createElement('td');
-
-        td1.textContent = parts[0];
-        td2.textContent = parts[1];
-
-        tr.appendChild(td1);
-        tr.appendChild(td2);
-        goldTableBody.appendChild(tr);
+      if (parts[0] && parts[1]) {
+        if (inGoldTable) {
+          // صف الجدول: العيار والسعر
+          const tr = document.createElement('tr');
+          tr.innerHTML = <td>${parts[0]}</td><td>${parts[1]}</td>;
+          goldTableBody.appendChild(tr);
+        } else {
+          // بطاقة معلومات مثل: Ounce Rate Gold
+          const card = document.createElement('div');
+          card.className = 'rate-card';
+          card.innerHTML = `
+            <div class="rate-title">${parts[0]}</div>
+            <div class="rate-value">${parts[1]}</div>
+          `;
+          ratesContainer.appendChild(card);
+        }
+      } else if (parts[0] && parts[1] === '') {
+        // بداية جدول الذهب
+        inGoldTable = true;
+        goldTable.style.display = 'table';
       }
     }
   }
