@@ -10,6 +10,7 @@
       margin: 0;
       padding: 20px;
       color: #3b2f1d;
+      position: relative;
     }
     header {
       text-align: center;
@@ -65,6 +66,18 @@
       font-weight: bold;
       text-decoration: none;
     }
+    .timestamp {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(202, 183, 150, 0.15);
+      color: #5c4431;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 0.9em;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -73,6 +86,8 @@
     <h1>مجوهرات السامر</h1>
     <h2>Al Samer Jewellery</h2>
   </header>
+
+  <div id="last-updated" class="timestamp"></div>
 
   <div id="card1" class="card"></div>
   <div id="card2" class="card"></div>
@@ -84,65 +99,71 @@
   </footer>
 
   <script>
-    const apiKey = '0i7s8w4kac1n8f53j762j57pa152oqu0r0n37aoi668933zkc5n0woip9t88';
+    function formatDateTime(date) {
+      return date.toLocaleString('ar-EG', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
 
-    async function fetchMetalsPrices() {
-      const url = https://metals-api.com/api/latest?access_key=${apiKey}&base=USD&symbols=XAU,XAG;
+    async function loadCSV() {
       try {
-        const response = await fetch(url);
-        const data = await response.json();
+        const res = await fetch('data.csv?t=' + new Date().getTime());
+        const text = await res.text();
+        const lines = text.trim().split(/\r?\n/);
+        const rows = [];
 
-        if (!data.success) {
-          console.error('خطأ في جلب البيانات:', data.error);
-          return;
+        for (const line of lines) {
+          const parts = line.split(',');
+          if (parts.length < 2) continue;
+
+          const label = parts[0].trim();
+          const value = parts.slice(1).join(',').trim();
+          const formattedValue = value.replace(/[^\d.,]/g, '').replace(/,/g, ',');
+          rows.push([label, formattedValue]);
         }
 
-        const ounceGold = data.rates.XAU; // سعر أونصة الذهب بالدولار
-        const ounceSilver = data.rates.XAG; // سعر أونصة الفضة بالدولار
-        const additionalCost = 21;
+        const card1Data = rows.slice(0, 2);
+        const card2Data = rows.slice(3, 8);
 
-        // حساب سعر الغرام = (سعر الأونصة + 21) / 31.1035
-        const goldPricePerGram = {
-          '24': (ounceGold + additionalCost) / 31.1035,
-          '22': (ounceGold + additionalCost) / 31.1035 * (22 / 24),
-          '21': (ounceGold + additionalCost) / 31.1035 * (21 / 24),
-          '18': (ounceGold + additionalCost) / 31.1035 * (18 / 24),
-          '14': (ounceGold + additionalCost) / 31.1035 * (14 / 24),
-        };
+        renderCard('card1', card1Data);
+        renderCard('card2', card2Data);
 
-        // عرض الأسعار في البطاقة الأولى (سعر أونصة الذهب والفضة)
-        const card1 = document.getElementById('card1');
-        card1.innerHTML = `
-          <div class="row"><div class="label">سعر أونصة الذهب (USD)</div><div class="value">${ounceGold.toFixed(2)}</div></div>
-          <div class="row"><div class="label">سعر أونصة الفضة (USD)</div><div class="value">${ounceSilver.toFixed(2)}</div></div>
-        `;
+        const now = new Date();
+        // هنا فقط نعرض الوقت والتاريخ بدون "آخر تحديث"
+        document.getElementById('last-updated').textContent = formatDateTime(now);
 
-        // عرض سعر غرام الذهب لكل عيار في البطاقة الثانية
-        const card2 = document.getElementById('card2');
-        card2.innerHTML = '';
-        for (const [karat, price] of Object.entries(goldPricePerGram)) {
-          const row = document.createElement('div');
-          row.className = 'row';
-
-          const labelDiv = document.createElement('div');
-          labelDiv.className = 'label';
-          labelDiv.textContent = سعر الذهب عيار ${karat} (USD للغرام);
-
-          const valueDiv = document.createElement('div');
-          valueDiv.className = 'value';
-          valueDiv.textContent = price.toFixed(2);
-
-          row.appendChild(labelDiv);
-          row.appendChild(valueDiv);
-          card2.appendChild(row);
-        }
-
-      } catch (error) {
-        console.error('خطأ في الطلب:', error);
+      } catch (err) {
+        console.error("CSV Error:", err);
       }
     }
 
-    fetchMetalsPrices();
+    function renderCard(id, data) {
+      const container = document.getElementById(id);
+      container.innerHTML = '';
+      data.forEach(([label, value]) => {
+        const row = document.createElement('div');
+        row.className = 'row';
+
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'label';
+        labelDiv.textContent = label;
+
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'value';
+        valueDiv.textContent = value;
+
+        row.appendChild(labelDiv);
+        row.appendChild(valueDiv);
+        container.appendChild(row);
+      });
+    }
+
+    loadCSV();
   </script>
 
 </body>
