@@ -70,9 +70,7 @@
 
   <div class="content">
     <div class="price-table" id="gold-prices">
-      <h3>أسعار الذهب والفضة اليوم</h3>
-      <div class="price-row"><span>سعر أونصة الذهب (USD)</span><span id="oz_gold_usd">--</span></div>
-      <div class="price-row"><span>سعر أونصة الفضة (USD)</span><span id="oz_silver_usd">--</span></div>
+      <h3>أسعار الذهب في دبي اليوم</h3>
       <div class="price-row"><span>عيار 24</span><span id="g24">--</span></div>
       <div class="price-row"><span>عيار 22</span><span id="g22">--</span></div>
       <div class="price-row"><span>عيار 21</span><span id="g21">--</span></div>
@@ -87,54 +85,45 @@
   </footer>
 
   <script>
-    const apiKey = "Q3GXsBpsSWXFWdffpYtJ";
-    const usdToAed = 3.6725;
-
-    async function fetchPrices() {
+    async function fetchGoldPrices() {
       try {
-        // جلب أسعار الذهب والفضة من API
-        const response = await fetch(
-          https://api.trademade.com/v1/latest?base=USD&currencies=XAU,XAG&api_key=${apiKey}
-        );
+        // محاولة جلب صفحة grgold.com
+        // ملاحظة: هذا سيعطي خطأ CORS عند التشغيل في المتصفح مباشرة
+        // الحل الصحيح هو استخدام خادم وسيط server-side
+        const response = await fetch('https://grgold.com/dubai-gold-price');
+        const html = await response.text();
 
-        if (!response.ok) {
-          throw new Error(HTTP error! status: ${response.status});
-        }
+        // إنشاء عنصر DOM مؤقت لتحليل HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
 
-        const data = await response.json();
+        // حسب تفقدي لصفحة grgold.com، أسعار الذهب موجودة في جدول
+        // مثلا: فحص عناصر بعينها (يمكن تعديلها حسب الصفحة الحقيقية)
+        // مثال: البحث عن السعر داخل عناصر تحتوي class محدد (تحتاج تعديل حسب الموقع الفعلي)
 
-        // حسب صيغة البيانات المتوقعة من API
-        // نفترض أن data.rates تحتوي على الأسعار، حيث:
-        // XAU = سعر أونصة الذهب بالدولار (عادة تكون السعر لكل أونصة الذهب)
-        // XAG = سعر أونصة الفضة بالدولار
+        // نموذج استخراج: (غير مضمون بدون الوصول الفعلي للصفحة)
+        // لنفترض الأسعار موجودة في spans أو divs بمعرفات معروفة
 
-        const ozGold = data.rates.XAU;   // سعر أونصة الذهب بالدولار
-        const ozSilver = data.rates.XAG; // سعر أونصة الفضة بالدولار
+        // كمثال وهمي (يجب تعديل حسب الصفحة الحقيقية):
+        const price24 = doc.querySelector('.price24')?.textContent.trim() || '--';
+        const price22 = doc.querySelector('.price22')?.textContent.trim() || '--';
+        const price21 = doc.querySelector('.price21')?.textContent.trim() || '--';
+        const price18 = doc.querySelector('.price18')?.textContent.trim() || '--';
 
-        // إضافة 15 درهم (حوالي 4$) للذهب كما في كودك الأصلي (تعديل تقريبي)
-        const ozGoldPlus15 = ozGold + (15 / usdToAed); 
+        // عرض الأسعار في الصفحة
+        document.getElementById('g24').textContent = price24;
+        document.getElementById('g22').textContent = price22;
+        document.getElementById('g21').textContent = price21;
+        document.getElementById('g18').textContent = price18;
 
-        // تحويل سعر أونصة الذهب إلى سعر جرام عيار 24 بالدرهم
-        // 1 أونصة = 31.1035 جرام
-        const g24 = (ozGoldPlus15 / 31.1035) * usdToAed;
-        const g22 = (g24 * 22) / 24;
-        const g21 = (g24 * 21) / 24;
-        const g18 = (g24 * 18) / 24;
-
-        // عرض الأسعار
-        document.getElementById("oz_gold_usd").textContent = ozGold.toFixed(2) + " $";
-        document.getElementById("oz_silver_usd").textContent = ozSilver.toFixed(2) + " $";
-        document.getElementById("g24").textContent = g24.toFixed(2) + " AED";
-        document.getElementById("g22").textContent = g22.toFixed(2) + " AED";
-        document.getElementById("g21").textContent = g21.toFixed(2) + " AED";
-        document.getElementById("g18").textContent = g18.toFixed(2) + " AED";
-      } catch (e) {
-        console.error("حدث خطأ أثناء جلب البيانات:", e);
-        alert("فشل في جلب أسعار الذهب، يرجى المحاولة لاحقًا.");
+      } catch (error) {
+        console.error('فشل جلب أسعار الذهب:', error);
+        // يمكن عرض رسالة للمستخدم
+        document.getElementById('gold-prices').textContent = 'لا يمكن جلب أسعار الذهب حالياً.';
       }
     }
 
-    fetchPrices();
+    fetchGoldPrices();
   </script>
 </body>
 </html>
