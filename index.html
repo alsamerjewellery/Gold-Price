@@ -10,6 +10,7 @@
       margin: 0;
       padding: 20px;
       color: #3b2f1d;
+      position: relative;
     }
     header {
       text-align: center;
@@ -65,6 +66,18 @@
       font-weight: bold;
       text-decoration: none;
     }
+    .timestamp {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(202, 183, 150, 0.15);
+      color: #5c4431;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 0.9em;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -73,6 +86,9 @@
     <h1>مجوهرات السامر</h1>
     <h2>Al Samer Jewellery</h2>
   </header>
+
+  <!-- عنصر الوقت والتاريخ -->
+  <div id="last-updated" class="timestamp"></div>
 
   <div id="card1" class="card"></div>
   <div id="card2" class="card"></div>
@@ -84,6 +100,17 @@
   </footer>
 
   <script>
+    function formatDateTime(date) {
+      return date.toLocaleString('ar-EG', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
     async function loadCSV() {
       try {
         const res = await fetch('data.csv?t=' + new Date().getTime());
@@ -96,18 +123,19 @@
           if (parts.length < 2) continue;
 
           const label = parts[0].trim();
-          const value = parts.slice(1).join(',').trim(); // دمج بقية الأعمدة كقيمة
-
-          // نحاول إزالة أي رموز غير رقمية ماعدا الفاصلة والنقطة
+          const value = parts.slice(1).join(',').trim();
           const formattedValue = value.replace(/[^\d.,]/g, '').replace(/,/g, ',');
           rows.push([label, formattedValue]);
         }
 
-        const card1Data = rows.slice(0, 2); // A1:B2
-        const card2Data = rows.slice(3, 8); // A4:B8
+        const card1Data = rows.slice(0, 2);
+        const card2Data = rows.slice(3, 8);
 
         renderCard('card1', card1Data);
         renderCard('card2', card2Data);
+
+        const now = new Date();
+        document.getElementById('last-updated').textContent = 'آخر تحديث: ' + formatDateTime(now);
 
       } catch (err) {
         console.error("CSV Error:", err);
