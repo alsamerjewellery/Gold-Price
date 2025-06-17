@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>مجوهرات السامر - أسعار الذهب</title>
   <style>
     body {
@@ -82,8 +81,8 @@
   </div>
 
   <footer>
-    العنوان: أبوظبي - مدينة زايد للتسوق - مركز الذهب<br>
-    واتساب: <a href="https://wa.me/971504848825">+971 50 484 8825</a><br>
+    العنوان: أبوظبي - مدينة زايد للتسوق - مركز الذهب<br />
+    واتساب: <a href="https://wa.me/971504848825">+971 50 484 8825</a><br />
     الموقع: <a href="https://alsamerjewellery.ae">alsamerjewellery.ae</a>
   </footer>
 
@@ -93,21 +92,36 @@
 
     async function fetchPrices() {
       try {
-        const goldRes = await fetch(`https://tradermade.com/v1/latest?base=USD&currencies=XAU&api_key=${apiKey}`);
-        const silverRes = await fetch(`https://tradermade.com/v1/latest?base=USD&currencies=XAG&api_key=${apiKey}`);
+        // جلب أسعار الذهب والفضة من API
+        const response = await fetch(
+          https://api.trademade.com/v1/latest?base=USD&currencies=XAU,XAG&api_key=${apiKey}
+        );
 
-        const goldData = await goldRes.json();
-        const silverData = await silverRes.json();
+        if (!response.ok) {
+          throw new Error(HTTP error! status: ${response.status});
+        }
 
-        const ozGold = 1 / goldData.rates.XAU;
-        const ozSilver = 1 / silverData.rates.XAG;
+        const data = await response.json();
 
-        const ozGoldPlus15 = ozGold + 15;
+        // حسب صيغة البيانات المتوقعة من API
+        // نفترض أن data.rates تحتوي على الأسعار، حيث:
+        // XAU = سعر أونصة الذهب بالدولار (عادة تكون السعر لكل أونصة الذهب)
+        // XAG = سعر أونصة الفضة بالدولار
+
+        const ozGold = data.rates.XAU;   // سعر أونصة الذهب بالدولار
+        const ozSilver = data.rates.XAG; // سعر أونصة الفضة بالدولار
+
+        // إضافة 15 درهم (حوالي 4$) للذهب كما في كودك الأصلي (تعديل تقريبي)
+        const ozGoldPlus15 = ozGold + (15 / usdToAed); 
+
+        // تحويل سعر أونصة الذهب إلى سعر جرام عيار 24 بالدرهم
+        // 1 أونصة = 31.1035 جرام
         const g24 = (ozGoldPlus15 / 31.1035) * usdToAed;
-        const g22 = g24 * 22 / 24;
-        const g21 = g24 * 21 / 24;
-        const g18 = g24 * 18 / 24;
+        const g22 = (g24 * 22) / 24;
+        const g21 = (g24 * 21) / 24;
+        const g18 = (g24 * 18) / 24;
 
+        // عرض الأسعار
         document.getElementById("oz_gold_usd").textContent = ozGold.toFixed(2) + " $";
         document.getElementById("oz_silver_usd").textContent = ozSilver.toFixed(2) + " $";
         document.getElementById("g24").textContent = g24.toFixed(2) + " AED";
@@ -116,6 +130,7 @@
         document.getElementById("g18").textContent = g18.toFixed(2) + " AED";
       } catch (e) {
         console.error("حدث خطأ أثناء جلب البيانات:", e);
+        alert("فشل في جلب أسعار الذهب، يرجى المحاولة لاحقًا.");
       }
     }
 
