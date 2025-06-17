@@ -88,13 +88,13 @@
   </footer>
 
   <script>
-    const apiKey = "7a8b8d5669b0c9d87c1f7f6500cdfd04";
+    const apiKey = "Q3GXsBpsSWXFWdffpYtJ";
     const usdToAed = 3.6725;
 
     async function fetchPrices() {
       try {
-        const goldRes = await fetch(`https://api.metalpriceapi.com/v1/latest?base=USD&currencies=XAU&api_key=${apiKey}`);
-        const silverRes = await fetch(`https://api.metalpriceapi.com/v1/latest?base=USD&currencies=XAG&api_key=${apiKey}`);
+        const goldRes = await fetch(`https://tradermade.com/v1/latest?base=USD&currencies=XAU&api_key=${apiKey}`);
+        const silverRes = await fetch(`https://tradermade.com/v1/latest?base=USD&currencies=XAG&api_key=${apiKey}`);
 
         const goldData = await goldRes.json();
         const silverData = await silverRes.json();
