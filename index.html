@@ -1,20 +1,66 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>مجوهرات السامر - أسعار الذهب</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f5f0e6; color: #4a3f35; margin: 0; padding: 0; }
-    header { background: #8b5e3c; color: white; padding: 20px; text-align: center; }
-    header h1 { margin: 0; font-size: 28px; }
-    header h2 { margin: 5px 0 0; font-size: 18px; font-weight: normal; }
-    .content { padding: 20px; }
-    .price-table { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 0 10px #ccc; max-width: 600px; margin: auto; }
-    .price-table h3 { text-align: center; margin-bottom: 20px; }
-    .price-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-    footer { text-align: center; padding: 15px; background: #8b5e3c; color: white; margin-top: 30px; }
-    a { color: white; text-decoration: none; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f0e6;
+      color: #4a3f35;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #8b5e3c;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    header h2 {
+      margin: 5px 0 0;
+      font-size: 18px;
+      font-weight: normal;
+    }
+    .content {
+      padding: 20px;
+    }
+    .price-table {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 10px #ccc;
+      max-width: 600px;
+      margin: auto;
+    }
+    .price-table h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: #8b5e3c;
+      color: white;
+      margin-top: 30px;
+    }
+    a {
+      color: white;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -42,31 +88,38 @@
   </footer>
 
   <script>
-    fetch("data.json")
-      .then(res => res.json())
-      .then(data => {
-        const usdToAed = 3.6725;
-        const ozGoldUSD = data.rates.XAU;
-        const ozSilverUSD = data.rates.XAG;
+    const apiKey = "7a8b8d5669b0c9d87c1f7f6500cdfd04";
+    const usdToAed = 3.6725;
 
-        const ozGoldWithFee = ozGoldUSD + 15;
+    async function fetchPrices() {
+      try {
+        const goldRes = await fetch(`https://api.metalpriceapi.com/v1/latest?base=USD&currencies=XAU&api_key=${apiKey}`);
+        const silverRes = await fetch(`https://api.metalpriceapi.com/v1/latest?base=USD&currencies=XAG&api_key=${apiKey}`);
 
-        const g24 = (ozGoldWithFee / 31.1035) * usdToAed;
+        const goldData = await goldRes.json();
+        const silverData = await silverRes.json();
+
+        const ozGold = 1 / goldData.rates.XAU;
+        const ozSilver = 1 / silverData.rates.XAG;
+
+        const ozGoldPlus15 = ozGold + 15;
+        const g24 = (ozGoldPlus15 / 31.1035) * usdToAed;
         const g22 = g24 * 22 / 24;
         const g21 = g24 * 21 / 24;
         const g18 = g24 * 18 / 24;
 
-        document.getElementById("oz_gold_usd").textContent = ozGoldUSD.toFixed(2) + " $";
-        document.getElementById("oz_silver_usd").textContent = ozSilverUSD.toFixed(2) + " $";
+        document.getElementById("oz_gold_usd").textContent = ozGold.toFixed(2) + " $";
+        document.getElementById("oz_silver_usd").textContent = ozSilver.toFixed(2) + " $";
         document.getElementById("g24").textContent = g24.toFixed(2) + " AED";
         document.getElementById("g22").textContent = g22.toFixed(2) + " AED";
         document.getElementById("g21").textContent = g21.toFixed(2) + " AED";
         document.getElementById("g18").textContent = g18.toFixed(2) + " AED";
-      })
-      .catch(err => {
-        console.error("فشل في تحميل البيانات:", err);
-        alert("حدث خطأ أثناء تحميل الأسعار.");
-      });
+      } catch (e) {
+        console.error("حدث خطأ أثناء جلب البيانات:", e);
+      }
+    }
+
+    fetchPrices();
   </script>
 </body>
 </html>
