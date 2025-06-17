@@ -78,12 +78,6 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       font-weight: bold;
     }
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 20px;
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
@@ -97,7 +91,6 @@
 
   <div id="card1" class="card"></div>
   <div id="card2" class="card"></div>
-  <div id="error" class="error"></div>
 
   <footer>
     <div class="contact">📍 أبوظبي - مدينة زايد للتسوق - مركز الذهب</div>
@@ -106,20 +99,6 @@
   </footer>
 
   <script>
-    const API_KEY = '0i7s8w4kac1n8f53j762j57pa152oqu0r0n37aoi668933zkc5n0woip9t88';
-    const API_URL = https://metals-api.com/api/latest?access_key=${API_KEY}&base=USD&symbols=XAU,XAG;
-
-    const GRAMS_IN_OUNCE = 31.1035;
-    const GOLD_CARATS = {
-      '24': 1,
-      '22': 22/24,
-      '21': 21/24,
-      '18': 18/24,
-      '14': 14/24,
-      '12': 12/24
-    };
-    const UPDATE_INTERVAL = 8 * 60 * 60 * 1000;
-
     function formatDateTime(date) {
       return date.toLocaleString('ar-EG', {
         weekday: 'long',
@@ -131,32 +110,36 @@
       });
     }
 
-    function saveDataToLocal(data) {
-      localStorage.setItem('metalsData', JSON.stringify({ data, timestamp: Date.now() }));
-    }
-
-    function loadDataFromLocal() {
-      const itemStr = localStorage.getItem('metalsData');
-      if (!itemStr) return null;
+    async function loadCSV() {
       try {
-        const item = JSON.parse(itemStr);
-        if (Date.now() - item.timestamp < UPDATE_INTERVAL) {
-          return item.data;
-        }
-        return null;
-      } catch {
-        return null;
-      }
-    }
+        const res = await fetch('data.csv?t=' + new Date().getTime());
+        const text = await res.text();
+        const lines = text.trim().split(/\r?\n/);
+        const rows = [];
 
-    function calculateGoldPrices(ouncePrice) {
-      const adjustedOuncePrice = ouncePrice + 21;
-      const prices = {};
-      for (const [carat, ratio] of Object.entries(GOLD_CARATS)) {
-        const pricePerGram = (adjustedOuncePrice / GRAMS_IN_OUNCE) * ratio;
-        prices[carat] = pricePerGram.toFixed(2);
+        for (const line of lines) {
+          const parts = line.split(',');
+          if (parts.length < 2) continue;
+
+          const label = parts[0].trim();
+          const value = parts.slice(1).join(',').trim();
+          const formattedValue = value.replace(/[^\d.,]/g, '').replace(/,/g, ',');
+          rows.push([label, formattedValue]);
+        }
+
+        const card1Data = rows.slice(0, 2);
+        const card2Data = rows.slice(3, 8);
+
+        renderCard('card1', card1Data);
+        renderCard('card2', card2Data);
+
+        const now = new Date();
+        // هنا فقط نعرض الوقت والتاريخ بدون "آخر تحديث"
+        document.getElementById('last-updated').textContent = formatDateTime(now);
+
+      } catch (err) {
+        console.error("CSV Error:", err);
       }
-      return prices;
     }
 
     function renderCard(id, data) {
@@ -180,63 +163,8 @@
       });
     }
 
-    async function fetchMetalsData() {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('فشل في جلب بيانات المعادن: ' + response.status);
-        const json = await response.json();
-
-        if (json.success === false) {
-          throw new Error('خطأ من API: ' + (json.error?.info || ''));
-        }
-
-        // اطبع الـ JSON للdebug
-        console.log('metals-api response:', json);
-
-        const goldOunce = json.rates?.XAU;
-        const silverOunce = json.rates?.XAG;
-
-        if (!goldOunce || !silverOunce) throw new Error('بيانات غير كاملة من API');
-
-        return { goldOunce, silverOunce };
-      } catch (error) {
-        console.error(error);
-        document.getElementById('error').textContent = error.message;
-        return null;
-      }
-    }
-
-    async function loadData() {
-      let metalsData = loadDataFromLocal();
-
-      if (!metalsData) {
-        metalsData = await fetchMetalsData();
-        if (metalsData) {
-          saveDataToLocal(metalsData);
-          document.getElementById('error').textContent = '';
-        } else {
-          document.getElementById('card1').innerHTML = '';
-          document.getElementById('card2').innerHTML = '';
-          return;
-        }
-      }
-
-      const card1Data = [
-        ['سعر أونصة الذهب (XAU)', metalsData.goldOunce.toFixed(4) + ' USD'],
-        ['سعر أونصة الفضة (XAG)', metalsData.silverOunce.toFixed(4) + ' USD'],
-      ];
-      renderCard('card1', card1Data);
-
-      const goldPrices = calculateGoldPrices(metalsData.goldOunce);
-      const card2Data = Object.entries(goldPrices).map(([carat, price]) => {
-        return [سعر الذهب عيار ${carat} (للجرام), price + ' USD'];
-      });
-      renderCard('card2', card2Data);
-
-      document.getElementById('last-updated').textContent = 'آخر تحديث: ' + formatDateTime(new Date());
-    }
-
-    loadData();
+    loadCSV();
   </script>
+
 </body>
 </html>
