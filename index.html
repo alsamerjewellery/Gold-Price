@@ -5,78 +5,65 @@
   <title>مجوهرات السامر - أسعار الذهب</title>
   <style>
     body {
-      background-color: #f8f3eb;
-      color: #4e3b26;
-      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f1ed;
+      font-family: 'Cairo', sans-serif;
       margin: 0;
       padding: 20px;
+      color: #3b2f1d;
     }
-
     header {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
-
     header h1 {
-      font-size: 2.4em;
-      font-weight: bold;
+      font-size: 2.5em;
       margin: 0;
-      color: #4e3b26;
-      font-family: 'Cairo', sans-serif;
     }
-
     header h2 {
-      font-size: 1.3em;
-      margin-top: 5px;
-      color: #8b6f47;
+      font-size: 1.2em;
+      color: #a6895a;
     }
-
+    input[type="file"] {
+      display: block;
+      margin: 20px auto;
+    }
     .card {
       background-color: #fff;
-      border: 2px solid #bfa054;
+      border: 2px solid #cbb69b;
       border-radius: 12px;
       padding: 20px;
       margin: 25px auto;
       max-width: 600px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
-
     .row {
       display: flex;
       justify-content: space-between;
-      border-bottom: 1px dashed #ccc;
+      border-bottom: 1px dashed #c8b7a1;
       padding: 10px 0;
-      font-size: 1.1em;
     }
-
     .row:last-child {
       border-bottom: none;
     }
-
     .label {
       font-weight: bold;
-      color: #4e3b26;
     }
-
     .value {
+      font-weight: bold;
+      direction: ltr;
       color: #000;
     }
-
     footer {
       text-align: center;
       margin-top: 40px;
-      font-size: 1em;
-      color: #4e3b26;
     }
-
     footer .contact {
       margin: 6px 0;
     }
-
     footer a {
-      color: #4e3b26;
-      font-weight: bold;
+      color: #4a3522;
       text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -87,39 +74,51 @@
     <h2>Al Samer Jewellery</h2>
   </header>
 
-  <div id="card1" class="card"></div>
-  <div id="card2" class="card"></div>
+  <input type="file" id="fileInput" accept=".xlsx" />
+
+  <div id="cards"></div>
 
   <footer>
     <div class="contact">📍 أبوظبي - مدينة زايد للتسوق - مركز الذهب</div>
-    <div class="contact">📱 واتساب: <a href="https://wa.me/971504848825" target="_blank">+971504848825</a></div>
-    <div class="contact">🌐 <a href="https://alsamerjewellery.ae" target="_blank">alsamerjewellery.ae</a></div>
+    <div class="contact">📱 واتساب: <a href="https://wa.me/971504848825">+971504848825</a></div>
+    <div class="contact">🌐 <a href="https://alsamerjewellery.ae">alsamerjewellery.ae</a></div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    async function loadCSV() {
-      try {
-        const res = await fetch('data.csv?t=' + new Date().getTime());
-        const text = await res.text();
-        const rows = text.trim().split(/\r?\n/)
-          .map(line => line.split(',').map(cell => cell.replace(/^"|"$/g, '').trim()));
+    document.getElementById('fileInput').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
 
-        const card1Data = rows.slice(0, 2);    // A1:B2
-        const card2Data = rows.slice(3, 8);    // A4:B8
+      reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-        renderCard('card1', card1Data);
-        renderCard('card2', card2Data);
+        renderCards(rows);
+      };
 
-      } catch (err) {
-        console.error("CSV Error:", err);
-      }
-    }
+      reader.readAsArrayBuffer(file);
+    });
 
-    function renderCard(cardId, data) {
-      const container = document.getElementById(cardId);
-      data.forEach(([label, value]) => {
-        const row = document.createElement('div');
-        row.className = 'row';
+    function renderCards(rows) {
+      const container = document.getElementById('cards');
+      container.innerHTML = '';
+
+      let card = createCard();
+      rows.forEach(row => {
+        if (row.length < 2 || !row[0]) {
+          // إذا كانت الصفوف فارغة، نبدأ بطاقة جديدة
+          card = createCard();
+          return;
+        }
+
+        const label = row[0];
+        const value = row[1];
+
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row';
 
         const labelDiv = document.createElement('div');
         labelDiv.className = 'label';
@@ -129,13 +128,18 @@
         valueDiv.className = 'value';
         valueDiv.textContent = value;
 
-        row.appendChild(labelDiv);
-        row.appendChild(valueDiv);
-        container.appendChild(row);
+        rowDiv.appendChild(labelDiv);
+        rowDiv.appendChild(valueDiv);
+        card.appendChild(rowDiv);
       });
-    }
 
-    loadCSV();
+      function createCard() {
+        const newCard = document.createElement('div');
+        newCard.className = 'card';
+        container.appendChild(newCard);
+        return newCard;
+      }
+    }
   </script>
 
 </body>
