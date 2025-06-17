@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مجوهرات السامر - أسعار الذهب</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f0e6;
+      color: #4a3f35;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #8b5e3c;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .content {
+      padding: 20px;
+    }
+    .price-table {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 10px #ccc;
+      max-width: 600px;
+      margin: auto;
+    }
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: #8b5e3c;
+      color: white;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>مجوهرات السامر</h1>
+    <h2>Al Samer Jewellery</h2>
+  </header>
+  <div class="content">
+    <div class="price-table" id="gold-prices">
+      <h3>أسعار الذهب والفضة</h3>
+      <div class="price-row"><span>سعر الذهب (XAU)</span><span id="xau">--</span></div>
+      <div class="price-row"><span>سعر الفضة (XAG)</span><span id="xag">--</span></div>
+    </div>
+  </div>
+  <footer>
+    أبوظبي - مدينة زايد - مركز الذهب<br />
+    واتساب: <a href="https://wa.me/971504848825">+971 50 484 8825</a>
+  </footer>
+
+  <script>
+    fetch('data.json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('xau').textContent = data.XAU.toFixed(2) + ' USD';
+        document.getElementById('xag').textContent = data.XAG.toFixed(2) + ' USD';
+      })
+      .catch(err => console.error('Failed to load prices', err));
+  </script>
+</body>
+</html>
