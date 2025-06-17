@@ -235,6 +235,18 @@
   </footer>
 
   <script>
+    const API_KEY = '0i7s8w4kac1n8f53j762j57pa152oqu0r0n37aoi668933zkc5n0woip9t88';
+    const API_URL = https://metals-api.com/api/latest?access_key=${API_KEY}&base=USD&symbols=XAU,XAG,AED;
+
+    // تحويل السعر من دولار لأونصة إلى درهم
+    function convertUsdToAed(priceUsd, rateUsdToAed) {
+      return priceUsd * rateUsdToAed;
+    }
+
+    function formatPrice(price) {
+      return price.toFixed(2);
+    }
+
     function formatDateTime(date) {
       return date.toLocaleString('ar-EG', {
         weekday: 'long',
@@ -244,37 +256,6 @@
         hour: '2-digit',
         minute: '2-digit'
       });
-    }
-
-    async function loadCSV() {
-      try {
-        const res = await fetch('data.csv?t=' + new Date().getTime());
-        const text = await res.text();
-        const lines = text.trim().split(/\r?\n/);
-        const rows = [];
-
-        for (const line of lines) {
-          const parts = line.split(',');
-          if (parts.length < 2) continue;
-
-          const label = parts[0].trim();
-          const value = parts.slice(1).join(',').trim();
-          const formattedValue = value.replace(/[^\d.,]/g, '').replace(/,/g, ',');
-          rows.push([label, formattedValue]);
-        }
-
-        const card1Data = rows.slice(0, 2);
-        const card2Data = rows.slice(3, 8);
-
-        renderCard('card1', card1Data);
-        renderCard('card2', card2Data);
-
-        const now = new Date();
-        document.getElementById('last-updated').textContent = formatDateTime(now);
-
-      } catch (err) {
-        console.error("CSV Error:", err);
-      }
     }
 
     function renderCard(id, data) {
@@ -298,7 +279,73 @@
       });
     }
 
-    loadCSV();
+    async function fetchAndStorePrices() {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('حدث خطأ أثناء جلب البيانات');
+
+        const data = await response.json();
+        const rates = data.rates;
+        if (!rates || !rates.XAU || !rates.XAG || !rates.AED) {
+          throw new Error('بيانات غير كاملة من API');
+        }
+
+        const usdToAed = rates.AED;
+        const goldPriceAed = convertUsdToAed(rates.XAU, usdToAed);
+        const silverPriceAed = convertUsdToAed(rates.XAG, usdToAed);
+
+        const card1Data = [
+          ['سعر الذهب (درهم / أونصة)', formatPrice(goldPriceAed)],
+          ['سعر الفضة (درهم / أونصة)', formatPrice(silverPriceAed)],
+        ];
+
+        const card2Data = [
+          ['سعر الذهب بالدولار (أونصة)', formatPrice(rates.XAU)],
+          ['سعر الفضة بالدولار (أونصة)', formatPrice(rates.XAG)],
+          ['سعر الصرف دولار -> درهم', formatPrice(usdToAed)],
+        ];
+
+        // تخزين البيانات مع توقيت التحديث في localStorage
+        localStorage.setItem('goldPrices', JSON.stringify({ card1Data, card2Data }));
+        localStorage.setItem('lastUpdate', Date.now());
+
+        renderCard('card1', card1Data);
+        renderCard('card2', card2Data);
+
+        document.getElementById('last-updated').textContent = formatDateTime(new Date());
+
+      } catch (error) {
+        console.error(error);
+        document.getElementById('last-updated').textContent = 'خطأ في جلب البيانات';
+      }
+    }
+
+    function loadFromStorage() {
+      const goldPrices = localStorage.getItem('goldPrices');
+      const lastUpdate = localStorage.getItem('lastUpdate');
+
+      if (goldPrices && lastUpdate) {
+        const now = Date.now();
+        const diff = now - parseInt(lastUpdate, 10);
+        const oneHour = 60 * 60 * 1000;
+
+        if (diff < oneHour) {
+          // استخدام البيانات المخزنة
+          const { card1Data, card2Data } = JSON.parse(goldPrices);
+          renderCard('card1', card1Data);
+          renderCard('card2', card2Data);
+          document.getElementById('last-updated').textContent = formatDateTime(new Date(parseInt(lastUpdate, 10)));
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // بداية التنفيذ
+    if (!loadFromStorage()) {
+      // إذا لا يوجد بيانات مخزنة أو مرت أكثر من ساعة، نحدث الأسعار من API
+      fetchAndStorePrices();
+    }
   </script>
 
 </body>
