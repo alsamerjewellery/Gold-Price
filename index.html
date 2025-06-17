@@ -12,7 +12,6 @@
       padding: 20px;
       color: #3b2f1d;
       position: relative;
-      /* زيادة حجم الخط الافتراضي قليلًا للراحة */
       font-size: 16px;
       line-height: 1.4;
     }
@@ -40,7 +39,6 @@
       margin: 20px auto;
       max-width: 600px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      /* عرض مرن مع تباعد داخلي متناسب */
       width: 100%;
       box-sizing: border-box;
     }
@@ -49,7 +47,7 @@
       justify-content: space-between;
       border-bottom: 1px dashed #c8b7a1;
       padding: 10px 0;
-      flex-wrap: wrap; /* ليتناسب مع الشاشات الصغيرة */
+      flex-wrap: wrap;
     }
     .row:last-child {
       border-bottom: none;
@@ -104,6 +102,51 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    /* صناديق الإدخال في أعلى يمين الصفحة */
+    .input-boxes {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #fff;
+      border: 2px solid #cbb69b;
+      border-radius: 12px;
+      padding: 15px 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      max-width: 320px;
+      width: 100%;
+      z-index: 999;
+    }
+    .input-boxes label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #4a3522;
+    }
+    .input-boxes input {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 1rem;
+      border: 1px solid #cbb69b;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      font-family: 'Cairo', sans-serif;
+      direction: ltr;
+      text-align: left;
+    }
+    /* بطاقة جديدة لعرض حسابات العيارات */
+    #card3 {
+      background-color: #fff;
+      border: 2px solid #cbb69b;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      box-sizing: border-box;
+    }
+
     /* تحسينات للشاشات الصغيرة */
     @media (max-width: 480px) {
       header h1 {
@@ -132,6 +175,19 @@
         overflow: visible;
         text-overflow: clip;
       }
+      .input-boxes {
+        position: static;
+        max-width: 100%;
+        margin-bottom: 20px;
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        background: transparent;
+        text-align: right;
+      }
+      .input-boxes input {
+        margin-bottom: 10px;
+      }
     }
   </style>
 </head>
@@ -144,8 +200,18 @@
 
   <div id="last-updated" class="timestamp"></div>
 
+  <!-- صناديق الإدخال -->
+  <div class="input-boxes" dir="ltr">
+    <label for="goldOunce">سعر أونصة الذهب (USD):</label>
+    <input type="number" id="goldOunce" placeholder="ادخل سعر أونصة الذهب" step="0.01" min="0" />
+
+    <label for="silverOunce">سعر أونصة الفضة (USD):</label>
+    <input type="number" id="silverOunce" placeholder="ادخل سعر أونصة الفضة" step="0.01" min="0" />
+  </div>
+
   <div id="card1" class="card"></div>
   <div id="card2" class="card"></div>
+  <div id="card3" class="card"></div> <!-- بطاقة لعرض أسعار العيارات -->
 
   <footer>
     <div class="contact">📍 أبوظبي - مدينة زايد للتسوق - مركز الذهب</div>
@@ -163,6 +229,28 @@
         hour: '2-digit',
         minute: '2-digit'
       });
+    }
+
+    // دالة لحساب أسعار الذهب حسب العيارات من سعر الأونصة مع إضافة 21 دولار
+    // السعر في USD للأونصة الواحدة
+    // عيار الذهب بالقيراط: 24، 22، 21، 18، 14، 12
+    // سعر الغرام = (سعر الأونصة / 31.1035) * (العيار / 24) + 21
+    function calculateGoldPrices(ouncePrice) {
+      const gramsInOunce = 31.1035;
+      const karats = [24, 22, 21, 18, 14, 12];
+      const prices = karats.map(k => {
+        const pricePerGram = (ouncePrice / gramsInOunce) * (k / 24) + 21;
+        return { karat: k, price: pricePerGram.toFixed(2) };
+      });
+      return prices;
+    }
+
+    // دالة لحساب سعر الفضة لكل غرام (نفس حساب الذهب لكن بدون عيارات)
+    // سعر الغرام = (سعر الأونصة / 31.1035) + 21
+    function calculateSilverPrice(ouncePrice) {
+      const gramsInOunce = 31.1035;
+      const pricePerGram = (ouncePrice / gramsInOunce) + 21;
+      return pricePerGram.toFixed(2);
     }
 
     async function loadCSV() {
@@ -217,7 +305,85 @@
       });
     }
 
+    // عرض حسابات العيارات في البطاقة الثالثة
+    function renderCalculatedPrices(goldPrices, silverPrice) {
+      const container = document.getElementById('card3');
+      container.innerHTML = '';
+
+      // الذهب
+      const goldTitle = document.createElement('h3');
+      goldTitle.style.color = '#4a3522';
+      goldTitle.style.marginBottom = '12px';
+      goldTitle.textContent = 'أسعار الذهب لكل العيارات (مع إضافة 21 دولار)';
+      container.appendChild(goldTitle);
+
+      goldPrices.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'row';
+
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'label';
+        labelDiv.textContent = عيار ${item.karat};
+
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'value';
+        valueDiv.textContent = ${item.price} $ / غرام;
+
+        row.appendChild(labelDiv);
+        row.appendChild(valueDiv);
+        container.appendChild(row);
+      });
+
+      // الفضة
+      const silverTitle = document.createElement('h3');
+      silverTitle.style.color = '#4a3522';
+      silverTitle.style.marginTop = '20px';
+      silverTitle.style.marginBottom = '12px';
+      silverTitle.textContent = 'سعر الفضة (مع إضافة 21 دولار)';
+
+      container.appendChild(silverTitle);
+
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      const labelDiv = document.createElement('div');
+      labelDiv.className = 'label';
+      labelDiv.textContent = 'فضة';
+
+      const valueDiv = document.createElement('div');
+      valueDiv.className = 'value';
+      valueDiv.textContent = ${silverPrice} $ / غرام;
+
+      row.appendChild(labelDiv);
+      row.appendChild(valueDiv);
+      container.appendChild(row);
+    }
+
+    // تفعيل الحساب عند إدخال السعر يدوياً
+    function setupInputs() {
+      const goldInput = document.getElementById('goldOunce');
+      const silverInput = document.getElementById('silverOunce');
+
+      function onInputChange() {
+        const goldVal = parseFloat(goldInput.value);
+        const silverVal = parseFloat(silverInput.value);
+
+        if (!isNaN(goldVal) && goldVal > 0 && !isNaN(silverVal) && silverVal > 0) {
+          const goldPrices = calculateGoldPrices(goldVal);
+          const silverPrice = calculateSilverPrice(silverVal);
+          renderCalculatedPrices(goldPrices, silverPrice);
+        } else {
+          // إذا لم تُدخل قيم صحيحة، امسح البطاقة
+          document.getElementById('card3').innerHTML = '';
+        }
+      }
+
+      goldInput.addEventListener('input', onInputChange);
+      silverInput.addEventListener('input', onInputChange);
+    }
+
     loadCSV();
+    setupInputs();
   </script>
 
 </body>
