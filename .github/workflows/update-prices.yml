@@ -22,7 +22,7 @@ jobs:
         run: npm install axios
 
       - name: Run Update Script
-        run: node .github/scripts/update-prices.js
+        run: node .github/workflow/update-prices.js
         env:
           API_KEY: ${{ secrets.METALS_API_KEY }}
 
