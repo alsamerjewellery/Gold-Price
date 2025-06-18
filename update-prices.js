@@ -23,20 +23,25 @@ function calculateGramPrice(ounceUsd, aedRate, extraUsd, karatFactor) {
 }
 
 (async () => {
-  const response = await fetchJson(API_URL);
-  const { XAU, XAG, AED } = response.rates;
+  try {
+    const response = await fetchJson(API_URL);
+    const { XAU, XAG, AED } = response.rates;
 
-  const content = fs.readFileSync('data.csv', 'utf8');
-  const records = parse(content, { skip_empty_lines: false });
+    const content = fs.readFileSync('data.csv', 'utf8');
+    const records = parse(content, { skip_empty_lines: false });
 
-  // تعديل الخلايا المطلوبة
-  records[0][1] = XAU.toFixed(2); // B1
-  records[1][1] = XAG.toFixed(2); // B2
-  records[4][1] = calculateGramPrice(XAU, AED, 21, 0.75); // B5 - عيار 18
-  records[5][1] = calculateGramPrice(XAU, AED, 21, 0.875); // B6 - عيار 21
-  records[6][1] = calculateGramPrice(XAU, AED, 21, 0.9167); // B7 - عيار 22
-  records[7][1] = calculateGramPrice(XAU, AED, 21, 1); // B8 - عيار 24
+    records[0][1] = XAU.toFixed(2); // B1
+    records[1][1] = XAG.toFixed(2); // B2
+    records[4][1] = calculateGramPrice(XAU, AED, 21, 0.75);    // B5 - عيار 18
+    records[5][1] = calculateGramPrice(XAU, AED, 21, 0.875);   // B6 - عيار 21
+    records[6][1] = calculateGramPrice(XAU, AED, 21, 0.9167);  // B7 - عيار 22
+    records[7][1] = calculateGramPrice(XAU, AED, 21, 1);       // B8 - عيار 24
 
-  const updated = stringify(records);
-  fs.writeFileSync('data.csv', updated);
+    const updated = stringify(records);
+    fs.writeFileSync('data.csv', updated);
+    console.log('✅ تم تحديث ملف data.csv بنجاح.');
+  } catch (error) {
+    console.error('❌ حدث خطأ أثناء التحديث:', error);
+    process.exit(1);
+  }
 })();
